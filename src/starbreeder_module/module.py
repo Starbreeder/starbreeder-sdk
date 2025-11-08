@@ -24,16 +24,6 @@ class Module(Protocol):
 		"""Generate root genotypes and save them into provided directories."""
 		...
 
-	def generate(
-		self,
-		parent_genotype_dirs: list[str],
-		child_genotype_dirs: list[str],
-		config: Config,
-		params: dict | None,
-	) -> list[list[int]]:
-		"""Create child genotypes from parent genotypes. Returns parent indices per child."""
-		...
-
 	def evaluate(
 		self,
 		genotype_dirs: list[str],
@@ -42,4 +32,14 @@ class Module(Protocol):
 		params: dict | None,
 	) -> None:
 		"""Evaluate genotypes and write phenotype files to the provided directories."""
+		...
+
+	def generate(
+		self,
+		parent_genotype_dirs: list[str],
+		child_genotype_dirs: list[str],
+		config: Config,
+		params: dict | None,
+	) -> list[list[int]]:
+		"""Create child genotypes from parent genotypes. Returns parent indices per child."""
 		...
