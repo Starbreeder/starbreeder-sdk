@@ -1,5 +1,5 @@
 [project]
-name = "module"
+name = "starbreeder-module"
 version = "0.1.0"
 description = "Starbreeder module."
 readme = "README.md"
@@ -13,8 +13,6 @@ dependencies = [
 	"pydantic",
 	"pydantic-settings",
 	"pyyaml",
-	"aiofiles",
-	"imageio[ffmpeg]",
 ]
 
 [project.optional-dependencies]
@@ -22,11 +20,6 @@ dev = [
 	"pytest",
 	"ruff",
 	"mypy",
-]
-notebooks = [
-	"ipykernel",
-	"ipywidgets",
-	"mediapy",
 ]
 
 [build-system]
@@ -37,10 +30,10 @@ build-backend = "hatchling.build"
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["app"]
+packages = ["src/starbreeder_module"]
 
 [tool.ruff]
-src = ["app"]
+src = ["src"]
 target-version = "py311"
 line-length = 100
 
