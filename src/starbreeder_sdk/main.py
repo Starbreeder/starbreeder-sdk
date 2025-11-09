@@ -22,10 +22,13 @@ import logging
 import os
 from contextlib import asynccontextmanager
 
+from absl import logging as absl_logging
 from fastapi import FastAPI
 
 from starbreeder_sdk.api.main import api_router
 from starbreeder_sdk.module import Module
+
+absl_logging.set_verbosity(absl_logging.WARNING)
 
 logging.basicConfig(
 	level=logging.INFO,
