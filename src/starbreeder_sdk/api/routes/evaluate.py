@@ -7,14 +7,14 @@ import os
 import httpx
 from fastapi import APIRouter, HTTPException, Request
 
-from starbreeder_module.api.routes.utils import (
+from starbreeder_sdk.api.routes.utils import (
 	download_and_unpack_genotypes,
 	get_config_from_request,
 	manage_tmp_dir,
 	upload_phenotypes,
 )
-from starbreeder_module.core.config import settings
-from starbreeder_module.schemas import (
+from starbreeder_sdk.core.config import settings
+from starbreeder_sdk.schemas import (
 	EvaluateRequest,
 	EvaluateResponse,
 	IndividualEvaluateResponse,
@@ -25,18 +25,28 @@ logger = logging.getLogger(__name__)
 
 
 @router.post("/", response_model=EvaluateResponse)
-async def handle_evaluate(request: Request, evaluate_request: EvaluateRequest) -> EvaluateResponse:
+async def handle_evaluate(
+	request: Request, evaluate_request: EvaluateRequest
+) -> EvaluateResponse:
 	"""Handle the /evaluate request."""
-	logger.info(f"Received evaluate request for config: {evaluate_request.config_name}")
+	logger.info(
+		f"Received evaluate request for config: {evaluate_request.config_name}"
+	)
 
 	# 1. Load config
 	try:
-		config = await get_config_from_request(request, evaluate_request.config_name)
+		config = await get_config_from_request(
+			request, evaluate_request.config_name
+		)
 	except HTTPException as e:
-		logger.error(f"Config error for '{evaluate_request.config_name}': {e.detail}")
+		logger.error(
+			f"Config error for '{evaluate_request.config_name}': {e.detail}"
+		)
 		responses = [
 			IndividualEvaluateResponse(
-				id=individual.id, status="error", message=f"Configuration error: {e.detail}"
+				id=individual.id,
+				status="error",
+				message=f"Configuration error: {e.detail}",
 			)
 			for individual in evaluate_request.individuals
 		]
@@ -45,7 +55,9 @@ async def handle_evaluate(request: Request, evaluate_request: EvaluateRequest) -
 	async with manage_tmp_dir() as tmp_dir:
 		try:
 			# 2. Download and unpack all genotypes concurrently
-			async with httpx.AsyncClient(timeout=settings.HTTPX_TIMEOUT) as client:
+			async with httpx.AsyncClient(
+				timeout=settings.HTTPX_TIMEOUT
+			) as client:
 				source_destination_pairs = []
 				for individual in evaluate_request.individuals:
 					individual_tmp_dir = os.path.join(tmp_dir, individual.id)
@@ -57,16 +69,19 @@ async def handle_evaluate(request: Request, evaluate_request: EvaluateRequest) -
 					source_destination_pairs, client
 				)
 
-			# 3. Prepare individuals for evaluation, filtering out download failures
+			# 3. Prepare individuals for evaluation
 			individuals_to_eval = []
 			valid_genotype_dirs = []
 			valid_phenotype_dirs = []
 			eval_statuses: dict[str, IndividualEvaluateResponse] = {}
 
-			for individual, result in zip(evaluate_request.individuals, download_results):
+			for individual, result in zip(
+				evaluate_request.individuals, download_results
+			):
 				if isinstance(result, Exception):
 					logger.error(
-						f"Failed to download/unpack for individual {individual.id}: {result}"
+						f"Failed to download/unpack for individual "
+						f"{individual.id}: {result}"
 					)
 					eval_statuses[individual.id] = IndividualEvaluateResponse(
 						id=individual.id,
@@ -75,8 +90,12 @@ async def handle_evaluate(request: Request, evaluate_request: EvaluateRequest) -
 					)
 				else:
 					genotype_dir = result
-					phenotype_dir = os.path.join(os.path.dirname(genotype_dir), "phenotype")
-					await asyncio.to_thread(os.makedirs, phenotype_dir, exist_ok=True)
+					phenotype_dir = os.path.join(
+						os.path.dirname(genotype_dir), "phenotype"
+					)
+					await asyncio.to_thread(
+						os.makedirs, phenotype_dir, exist_ok=True
+					)
 
 					individuals_to_eval.append(individual)
 					valid_genotype_dirs.append(genotype_dir)
@@ -94,14 +113,18 @@ async def handle_evaluate(request: Request, evaluate_request: EvaluateRequest) -
 				)
 
 				# 5. Upload all phenotypes concurrently
-				async with httpx.AsyncClient(timeout=settings.HTTPX_TIMEOUT) as client:
+				async with httpx.AsyncClient(
+					timeout=settings.HTTPX_TIMEOUT
+				) as client:
 					phenotypes_to_upload = [
 						(phenotype_dir, individual.phenotype_put_urls)
 						for phenotype_dir, individual in zip(
 							valid_phenotype_dirs, individuals_to_eval
 						)
 					]
-					await upload_phenotypes(phenotypes_to_upload, config, client)
+					await upload_phenotypes(
+						phenotypes_to_upload, config, client
+					)
 
 				# Mark successfully processed individuals
 				for individual in individuals_to_eval:
@@ -111,17 +134,21 @@ async def handle_evaluate(request: Request, evaluate_request: EvaluateRequest) -
 
 			# 6. Compile final responses
 			final_responses = [
-				eval_statuses[individual.id] for individual in evaluate_request.individuals
+				eval_statuses[individual.id]
+				for individual in evaluate_request.individuals
 			]
 			return EvaluateResponse(individuals=final_responses)
 
 		except Exception as e:
 			logger.error(
-				f"An unexpected error occurred during the eval process: {e}", exc_info=True
+				f"An unexpected error occurred during the eval process: {e}",
+				exc_info=True,
 			)
 			# Create a generic error response for all individuals
 			error_responses = [
-				IndividualEvaluateResponse(id=individual.id, status="error", message=str(e))
+				IndividualEvaluateResponse(
+					id=individual.id, status="error", message=str(e)
+				)
 				for individual in evaluate_request.individuals
 			]
 			return EvaluateResponse(individuals=error_responses)

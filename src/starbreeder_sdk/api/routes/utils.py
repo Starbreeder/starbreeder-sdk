@@ -12,18 +12,22 @@ import aiofiles.os
 import httpx
 from fastapi import HTTPException, Request
 
-from starbreeder_module.core.module_config import Config
+from starbreeder_sdk.core.module_config import Config
 
 
-async def get_config_from_request(request: Request, config_name: str) -> Config:
+async def get_config_from_request(
+	request: Request, config_name: str
+) -> Config:
 	"""Load and validate the specified configuration file.
 
-	This helper function centralizes the logic for fetching the configs directory,
-	loading a config file in a non-blocking way, and handling common errors
-	(e.g., file not found, validation errors) by raising appropriate HTTPErrors.
+	This helper centralizes logic for:
+	- Finding the configs directory
+	- Loading the config file without blocking the event loop
+	- Raising clear HTTP errors (validation, file not found)
 
 	Args:
-		request: The incoming FastAPI request object, used to access application state.
+		request: The incoming FastAPI request object. Used to access
+			application state.
 		config_name: The name of the configuration file to load.
 
 	Returns:
@@ -32,7 +36,7 @@ async def get_config_from_request(request: Request, config_name: str) -> Config:
 	Raises:
 		HTTPException: With a 500 status code if the service is misconfigured.
 		HTTPException: With a 404 status code if the config file is not found.
-		HTTPException: With a 400 status code for validation or other load errors.
+		HTTPException: With a 400 status code for validation or load errors.
 
 	"""
 	try:
@@ -40,18 +44,28 @@ async def get_config_from_request(request: Request, config_name: str) -> Config:
 	except AttributeError:
 		raise HTTPException(
 			status_code=500,
-			detail="Module is not properly configured. Missing app.state.configs_dir.",
+			detail=(
+				"Module is not properly configured. "
+				"Missing app.state.configs_dir."
+			),
 		)
 
 	config_path = os.path.join(configs_dir, config_name)
 
 	try:
-		config = await asyncio.to_thread(request.app.state.module.config, config_path)
+		config = await asyncio.to_thread(
+			request.app.state.module.config, config_path
+		)
 		return config
 	except FileNotFoundError:
-		raise HTTPException(status_code=404, detail=f"Config file '{config_name}' not found.")
+		raise HTTPException(
+			status_code=404, detail=f"Config file '{config_name}' not found."
+		)
 	except Exception as e:
-		raise HTTPException(status_code=400, detail=f"Failed to load or validate config file: {e}")
+		raise HTTPException(
+			status_code=400,
+			detail=f"Failed to load or validate config file: {e}",
+		)
 
 
 async def download_file_buffered(url: str, client: httpx.AsyncClient) -> bytes:
@@ -70,7 +84,9 @@ async def upload_file_buffered(
 	response.raise_for_status()
 
 
-async def download_file_streamed(url: str, target_path: str, client: httpx.AsyncClient) -> None:
+async def download_file_streamed(
+	url: str, target_path: str, client: httpx.AsyncClient
+) -> None:
 	"""Download a file and stream it directly to disk."""
 	async with client.stream("GET", url) as response:
 		response.raise_for_status()
@@ -92,7 +108,7 @@ async def upload_file_streamed(
 
 
 @asynccontextmanager
-async def manage_tmp_dir() -> AsyncGenerator[str, None]:
+async def manage_tmp_dir() -> AsyncGenerator[str]:
 	"""Create and manage a temporary directory in a context block.
 
 	Yields:
@@ -116,7 +132,8 @@ async def pack_and_upload_genotype(
 	temporary archive.
 
 	Args:
-		source_dir: The parent directory containing the genotype folder to pack.
+		source_dir: The parent directory containing the genotype directory to
+			pack and upload.
 		put_url: The pre-signed URL to upload the archive to.
 		client: The httpx client to use for the upload.
 
@@ -134,16 +151,18 @@ async def pack_and_upload_genotype(
 		)
 
 		# 2. Stream the created archive to the object store
-		await upload_file_streamed(put_url, archive_path, client, "application/x-tar")
+		await upload_file_streamed(
+			put_url, archive_path, client, "application/x-tar"
+		)
 
 
 async def download_and_unpack_genotype(
 	get_url: str, target_dir: str, client: httpx.AsyncClient
 ) -> str:
-	"""Download and unpack a genotype archive from a URL.
+	"""Download a genotype archive from a URL and unpack it.
 
 	This function streams the download to a temporary file on disk, unpacks it
-	to the specified directory, and ensures the temporary archive is cleaned up.
+	to the target directory, and ensures the temporary archive is cleaned up.
 
 	Args:
 		get_url: The URL from which to download the genotype archive.
@@ -154,7 +173,8 @@ async def download_and_unpack_genotype(
 		The path to the extracted 'genotype/' subdirectory.
 
 	Raises:
-		FileNotFoundError: If the archive does not contain a 'genotype/' directory.
+		FileNotFoundError: If the archive does not contain a `genotype/`
+			directory.
 
 	"""
 	tmp_file = os.path.join(target_dir, "genotype.tar.tmp")
@@ -163,7 +183,9 @@ async def download_and_unpack_genotype(
 		await download_file_streamed(get_url, tmp_file, client)
 
 		# 2. Unpack the archive (this is a blocking, I/O-bound operation)
-		await asyncio.to_thread(shutil.unpack_archive, tmp_file, target_dir, "tar")
+		await asyncio.to_thread(
+			shutil.unpack_archive, tmp_file, target_dir, "tar"
+		)
 	finally:
 		# 3. Ensure the temporary archive file is always cleaned up
 		if await aiofiles.os.path.exists(tmp_file):
@@ -172,7 +194,9 @@ async def download_and_unpack_genotype(
 	# 4. Verify that the expected genotype directory exists and return its path
 	genotype_dir = os.path.join(target_dir, "genotype")
 	if not os.path.isdir(genotype_dir):
-		raise FileNotFoundError("'genotype/' directory not found in tar archive.")
+		raise FileNotFoundError(
+			"'genotype/' directory not found in tar archive."
+		)
 
 	return genotype_dir
 

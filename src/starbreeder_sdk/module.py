@@ -2,7 +2,7 @@
 
 from typing import Protocol
 
-from starbreeder_module.core.module_config import Config
+from starbreeder_sdk.core.module_config import Config
 
 
 class Module(Protocol):
@@ -21,7 +21,7 @@ class Module(Protocol):
 		config: Config,
 		params: dict | None = None,
 	) -> None:
-		"""Generate root genotypes and save them into provided directories."""
+		"""Generate root genotypes."""
 		...
 
 	def evaluate(
@@ -31,7 +31,7 @@ class Module(Protocol):
 		config: Config,
 		params: dict | None,
 	) -> None:
-		"""Evaluate genotypes and write phenotype files to the provided directories."""
+		"""Evaluate genotypes and save phenotype files."""
 		...
 
 	def generate(
@@ -41,5 +41,5 @@ class Module(Protocol):
 		config: Config,
 		params: dict | None,
 	) -> list[list[int]]:
-		"""Create child genotypes from parent genotypes. Returns parent indices per child."""
+		"""Generate child genotypes from parent genotypes."""
 		...

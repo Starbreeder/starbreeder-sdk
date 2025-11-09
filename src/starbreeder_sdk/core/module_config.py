@@ -1,7 +1,7 @@
 """Base configuration for breeder services."""
 
 import logging
-from typing import Any, TypeVar
+from typing import Any
 
 import yaml
 from pydantic import BaseModel
@@ -53,10 +53,9 @@ class Config(BaseModel):
 	generate: GenerateConfig
 
 
-T = TypeVar("T", bound=BaseModel)
-
-
-def load_config_from_file(config_path: str, config_class: type[T]) -> T:
+def load_config_from_file[T: BaseModel](
+	config_path: str, config_class: type[T]
+) -> T:
 	"""Load and validate config."""
 	logger.info(f"Loading configuration from: {config_path}")
 	try:

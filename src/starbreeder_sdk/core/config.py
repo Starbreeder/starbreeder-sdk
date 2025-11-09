@@ -11,7 +11,9 @@ class Settings(BaseSettings):
 	`HTTPX_TIMEOUT` environment variable.
 	"""
 
-	model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+	model_config = SettingsConfigDict(
+		env_file=".env", env_file_encoding="utf-8", extra="ignore"
+	)
 
 	# Default timeout for HTTP requests made by the service
 	HTTPX_TIMEOUT: int = 60

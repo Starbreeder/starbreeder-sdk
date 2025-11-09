@@ -7,13 +7,13 @@ import os
 import httpx
 from fastapi import APIRouter, HTTPException, Request
 
-from starbreeder_module.api.routes.utils import (
+from starbreeder_sdk.api.routes.utils import (
 	get_config_from_request,
 	manage_tmp_dir,
 	pack_and_upload_genotypes,
 )
-from starbreeder_module.core.config import settings
-from starbreeder_module.schemas import (
+from starbreeder_sdk.core.config import settings
+from starbreeder_sdk.schemas import (
 	InitializeRequest,
 	InitializeResponse,
 	RootIndividualInitializeResponse,
@@ -24,14 +24,18 @@ router = APIRouter()
 
 
 @router.post("/", response_model=InitializeResponse)
-async def handle_initialize(request: Request, initialize_request: InitializeRequest):
+async def handle_initialize(
+	request: Request, initialize_request: InitializeRequest
+):
 	"""Handle the `/initialize` endpoint.
 
 	Get root genotypes and upload them to the object store.
 
 	Args:
-		request: The incoming FastAPI request object, used to access application state.
-		initialize_request: The request body containing the configuration file and root individuals.
+		request: The incoming FastAPI request object. Used to access
+			application state.
+		initialize_request: The request body containing the configuration file
+			and root individuals.
 
 	Returns:
 		An InitResponse object containing the root individuals.
@@ -42,11 +46,15 @@ async def handle_initialize(request: Request, initialize_request: InitializeRequ
 
 	"""
 	# 1. Load config
-	config = await get_config_from_request(request, initialize_request.config_name)
+	config = await get_config_from_request(
+		request, initialize_request.config_name
+	)
 
 	# 2. Validate request against config
 	config_root_keys = set(config.initialize.roots)
-	request_root_keys = set(individual.key for individual in initialize_request.root_individuals)
+	request_root_keys = set(
+		individual.key for individual in initialize_request.root_individuals
+	)
 	if config_root_keys != request_root_keys:
 		error_msg = (
 			"Mismatch between root keys in config and request. "
@@ -60,7 +68,9 @@ async def handle_initialize(request: Request, initialize_request: InitializeRequ
 			# 3. Create directories for each root genotype
 			genotype_dirs_map: dict[str, str] = {}
 			for individual in initialize_request.root_individuals:
-				genotype_dir = os.path.join(tmp_dir, individual.key, "genotype")
+				genotype_dir = os.path.join(
+					tmp_dir, individual.key, "genotype"
+				)
 				await asyncio.to_thread(os.makedirs, genotype_dir)
 				genotype_dirs_map[individual.key] = genotype_dir
 
@@ -80,11 +90,17 @@ async def handle_initialize(request: Request, initialize_request: InitializeRequ
 				)
 				for individual in initialize_request.root_individuals
 			]
-			async with httpx.AsyncClient(timeout=settings.HTTPX_TIMEOUT) as client:
-				await pack_and_upload_genotypes(source_destination_pairs, client)
+			async with httpx.AsyncClient(
+				timeout=settings.HTTPX_TIMEOUT
+			) as client:
+				await pack_and_upload_genotypes(
+					source_destination_pairs, client
+				)
 
 		except Exception as e:
-			logger.error(f"Error during root genotypes init: {e}", exc_info=True)
+			logger.error(
+				f"Error during root genotypes init: {e}", exc_info=True
+			)
 			detail = f"Failed to initialize root population: {e}"
 			raise HTTPException(status_code=500, detail=detail)
 

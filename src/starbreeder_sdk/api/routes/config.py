@@ -5,7 +5,7 @@ import os
 
 from fastapi import APIRouter, Request
 
-from starbreeder_module.core.module_config import Config
+from starbreeder_sdk.core.module_config import Config
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -18,16 +18,20 @@ async def handle_config(request: Request, config_name: str) -> Config:
 	Returns the validated config model; modules may extend Config.
 
 	Args:
-		request: The incoming FastAPI request object, used to access application state.
+		request: The incoming FastAPI request object. Used to access
+			application state.
 		config_name: The name of the configuration file to load.
 
 	Returns:
-		The validated configuration model instance (serializes to JSON automatically).
+		The validated configuration model instance.
 
 	Raises:
-		HTTPException: With a 500 status code if the module is not properly configured.
-		HTTPException: With a 404 status code if the configuration file is not found.
-		HTTPException: With a 400 status code if the configuration file is invalid.
+		HTTPException: With a 500 status code if the module is not properly
+			configured.
+		HTTPException: With a 404 status code if the configuration file is not
+			found.
+		HTTPException: With a 400 status code if the configuration file is
+			invalid.
 
 	"""
 	try:
