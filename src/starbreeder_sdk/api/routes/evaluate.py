@@ -1,4 +1,4 @@
-"""API endpoint for /evaluate."""
+"""Evaluation endpoint `/evaluate` for batch genotype evaluation."""
 
 import asyncio
 import logging
@@ -28,7 +28,33 @@ logger = logging.getLogger(__name__)
 async def handle_evaluate(
 	request: Request, evaluate_request: EvaluateRequest
 ) -> EvaluateResponse:
-	"""Handle the /evaluate request."""
+	"""Evaluate a batch of genotypes and upload phenotypes.
+
+	This endpoint:
+		1. Loads the requested configuration.
+		2. Downloads and unpacks each individual's genotype archive.
+		3. Invokes the module's `evaluate` on all valid individuals.
+		4. Uploads phenotype artifacts for evaluated individuals.
+		5. Returns a per-individual status.
+
+		Individuals that fail to download/unpack are marked with
+		`status="error"` and do not block other evaluations.
+
+	Args:
+		request: The incoming FastAPI request object.
+		evaluate_request: The request payload describing the config and
+			individuals to evaluate.
+
+	Returns:
+		EvaluateResponse: A response with a result for each requested
+			individual.
+
+	Notes:
+		Exceptions during processing are caught and translated into
+		per-individual error statuses. The endpoint itself does not raise
+		HTTP errors for per-individual failures.
+
+	"""
 	logger.info(
 		f"Received evaluate request for config: {evaluate_request.config_name}"
 	)

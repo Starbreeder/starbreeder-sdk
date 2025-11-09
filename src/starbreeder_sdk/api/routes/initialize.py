@@ -1,4 +1,4 @@
-"""API endpoint for /initialize."""
+"""Initialization endpoint `/initialize` for creating root genotypes."""
 
 import asyncio
 import logging
@@ -26,10 +26,15 @@ router = APIRouter()
 @router.post("/", response_model=InitializeResponse)
 async def handle_initialize(
 	request: Request, initialize_request: InitializeRequest
-):
-	"""Handle the `/initialize` endpoint.
+) -> InitializeResponse:
+	"""Create and upload root genotypes for a new population.
 
-	Get root genotypes and upload them to the object store.
+	This endpoint:
+		1. Loads the requested configuration.
+		2. Validates that requested root keys match the configuration.
+		3. Creates genotype output directories for each root key.
+		4. Invokes the module's `initialize` to write root genotypes.
+		5. Archives and uploads each root's genotype.
 
 	Args:
 		request: The incoming FastAPI request object. Used to access
@@ -38,11 +43,11 @@ async def handle_initialize(
 			and root individuals.
 
 	Returns:
-		An InitResponse object containing the root individuals.
+		InitializeResponse: A response containing the created root individuals.
 
 	Raises:
-		HTTPException: With a 400 status code if the request is invalid.
-		HTTPException: With a 500 status code if the request fails.
+		HTTPException: 400 if the set of root keys does not match the config.
+		HTTPException: 500 on generation or upload failures.
 
 	"""
 	# 1. Load config

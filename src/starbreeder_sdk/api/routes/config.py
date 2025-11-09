@@ -1,4 +1,8 @@
-"""API endpoint for /config."""
+"""Configuration endpoint `/config` for modules.
+
+This router exposes a read-only endpoint that loads and validates a module
+configuration file from the module's `configs/` directory.
+"""
 
 import logging
 import os
@@ -13,9 +17,10 @@ router = APIRouter()
 
 @router.get("/", response_model=Config)
 async def handle_config(request: Request, config_name: str) -> Config:
-	"""Handle the `/config` endpoint.
+	"""Return a validated configuration for the given name.
 
-	Returns the validated config model; modules may extend Config.
+	Modules may extend `Config` and return subclasses which are still
+	serialized according to the base model.
 
 	Args:
 		request: The incoming FastAPI request object. Used to access
@@ -23,15 +28,13 @@ async def handle_config(request: Request, config_name: str) -> Config:
 		config_name: The name of the configuration file to load.
 
 	Returns:
-		The validated configuration model instance.
+		Config: A validated configuration model instance.
 
 	Raises:
-		HTTPException: With a 500 status code if the module is not properly
-			configured.
-		HTTPException: With a 404 status code if the configuration file is not
-			found.
-		HTTPException: With a 400 status code if the configuration file is
-			invalid.
+		HTTPException: 500 if the service is misconfigured (e.g. missing
+			`app.state.configs_dir`).
+		HTTPException: 404 if the configuration file is not found.
+		HTTPException: 400 if the configuration file is invalid.
 
 	"""
 	try:

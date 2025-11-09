@@ -1,4 +1,4 @@
-"""API endpoint for /generate."""
+"""Generation endpoint `/generate` for producing child genotypes."""
 
 import asyncio
 import logging
@@ -28,7 +28,27 @@ logger = logging.getLogger(__name__)
 async def handle_generate(
 	request: Request, generate_request: GenerateRequest
 ) -> GenerateResponse:
-	"""Handle the /generate request."""
+	"""Generate child genotypes from a set of parents.
+
+	This endpoint:
+		1. Loads the requested configuration.
+		2. Downloads and unpacks all parent genotype archives.
+		3. Creates output directories for each child genotype.
+		4. Invokes the module's `generate` to produce children.
+		5. Archives and uploads each child genotype.
+
+	Args:
+		request: The incoming FastAPI request object.
+		generate_request: The request payload describing parents and children.
+
+	Returns:
+		GenerateResponse: A response mapping each child to its parent IDs.
+
+	Raises:
+		HTTPException: 500 if configuration loading fails, a parent download
+			fails, or uploading children fails.
+
+	"""
 	logger.info(
 		f"Received generate request for config: {generate_request.config_name}"
 	)

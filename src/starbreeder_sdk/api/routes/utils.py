@@ -1,4 +1,9 @@
-"""Utility functions for FastAPI routers."""
+"""Utility helpers used across API routers.
+
+These functions implement common I/O patterns (buffered/streamed HTTP file
+transfer, temporary directory management, and parallel packing/unpacking)
+used by the generation, evaluation, and initialization endpoints.
+"""
 
 import asyncio
 import os
@@ -18,7 +23,7 @@ from starbreeder_sdk.core.module_config import Config
 async def get_config_from_request(
 	request: Request, config_name: str
 ) -> Config:
-	"""Load and validate the specified configuration file.
+	"""Load and validate a module configuration by name.
 
 	This helper centralizes logic for:
 	- Finding the configs directory
@@ -31,7 +36,7 @@ async def get_config_from_request(
 		config_name: The name of the configuration file to load.
 
 	Returns:
-		A validated Pydantic Config object.
+		Config: A validated configuration object.
 
 	Raises:
 		HTTPException: With a 500 status code if the service is misconfigured.
@@ -69,7 +74,19 @@ async def get_config_from_request(
 
 
 async def download_file_buffered(url: str, client: httpx.AsyncClient) -> bytes:
-	"""Download a file into an in-memory bytes object."""
+	"""Download a file into an in-memory bytes object.
+
+	Args:
+		url: The HTTP(S) URL to download.
+		client: An `httpx.AsyncClient` instance to use for the request.
+
+	Returns:
+		bytes: The downloaded file bytes.
+
+	Raises:
+		httpx.HTTPStatusError: If the server responds with an error status.
+
+	"""
 	response = await client.get(url)
 	response.raise_for_status()
 	return response.content
@@ -78,7 +95,21 @@ async def download_file_buffered(url: str, client: httpx.AsyncClient) -> bytes:
 async def upload_file_buffered(
 	url: str, data: bytes, client: httpx.AsyncClient, content_type: str
 ) -> None:
-	"""Upload an in-memory bytes object to a URL."""
+	"""Upload an in-memory bytes object to a URL.
+
+	Args:
+		url: The HTTP(S) URL to upload to.
+		data: The in-memory bytes to send.
+		client: An `httpx.AsyncClient` instance to use for the request.
+		content_type: Value for the `Content-Type` header.
+
+	Returns:
+		None
+
+	Raises:
+		httpx.HTTPStatusError: If the server responds with an error status.
+
+	"""
 	headers = {"Content-Type": content_type}
 	response = await client.put(url, content=data, headers=headers)
 	response.raise_for_status()
@@ -87,7 +118,20 @@ async def upload_file_buffered(
 async def download_file_streamed(
 	url: str, target_path: str, client: httpx.AsyncClient
 ) -> None:
-	"""Download a file and stream it directly to disk."""
+	"""Download a file and stream it directly to disk.
+
+	Args:
+		url: The HTTP(S) URL to download.
+		target_path: Absolute file path to write to.
+		client: An `httpx.AsyncClient` instance to use for the request.
+
+	Returns:
+		None
+
+	Raises:
+		httpx.HTTPStatusError: If the server responds with an error status.
+
+	"""
 	async with client.stream("GET", url) as response:
 		response.raise_for_status()
 		async with aiofiles.open(target_path, "wb") as f:
@@ -98,7 +142,21 @@ async def download_file_streamed(
 async def upload_file_streamed(
 	url: str, source_path: str, client: httpx.AsyncClient, content_type: str
 ) -> None:
-	"""Read a file from disk and stream it to a URL."""
+	"""Read a file from disk and stream it to a URL.
+
+	Args:
+		url: The HTTP(S) URL to upload to.
+		source_path: Absolute path to the file to upload.
+		client: An `httpx.AsyncClient` instance to use for the request.
+		content_type: Value for the `Content-Type` header.
+
+	Returns:
+		None
+
+	Raises:
+		httpx.HTTPStatusError: If the server responds with an error status.
+
+	"""
 	file_size = (await aiofiles.os.stat(source_path)).st_size
 	headers = {"Content-Type": content_type, "Content-Length": str(file_size)}
 
@@ -112,7 +170,7 @@ async def manage_tmp_dir() -> AsyncGenerator[str]:
 	"""Create and manage a temporary directory in a context block.
 
 	Yields:
-		The path to the created temporary directory.
+		str: The absolute path to the temporary directory.
 
 	"""
 	tmp_dir = await asyncio.to_thread(tempfile.mkdtemp)
@@ -136,6 +194,12 @@ async def pack_and_upload_genotype(
 			pack and upload.
 		put_url: The pre-signed URL to upload the archive to.
 		client: The httpx client to use for the upload.
+
+	Returns:
+		None
+
+	Raises:
+		httpx.HTTPStatusError: If the upload fails.
 
 	"""
 	async with manage_tmp_dir() as tmp_dir:
@@ -170,7 +234,7 @@ async def download_and_unpack_genotype(
 		client: The httpx client to use for the download.
 
 	Returns:
-		The path to the extracted 'genotype/' subdirectory.
+		str: Absolute path to the extracted `genotype/` subdirectory.
 
 	Raises:
 		FileNotFoundError: If the archive does not contain a `genotype/`
@@ -204,7 +268,16 @@ async def download_and_unpack_genotype(
 async def pack_and_upload_genotypes(
 	source_destination_pairs: list[tuple[str, str]], client: httpx.AsyncClient
 ) -> None:
-	"""Pack and upload multiple genotype directories in parallel."""
+	"""Pack and upload multiple genotype directories in parallel.
+
+	Args:
+		source_destination_pairs: A list of `(source_dir, put_url)` tuples.
+		client: Shared `httpx.AsyncClient` instance used for uploads.
+
+	Returns:
+		None
+
+	"""
 	tasks = [
 		pack_and_upload_genotype(source_dir, put_url, client)
 		for source_dir, put_url in source_destination_pairs
@@ -215,7 +288,17 @@ async def pack_and_upload_genotypes(
 async def download_and_unpack_genotypes(
 	source_destination_pairs: list[tuple[str, str]], client: httpx.AsyncClient
 ) -> list[str | Exception]:
-	"""Download and unpack multiple genotype archives in parallel."""
+	"""Download and unpack multiple genotype archives in parallel.
+
+	Args:
+		source_destination_pairs: A list of `(get_url, target_dir)` tuples.
+		client: Shared `httpx.AsyncClient` instance used for downloads.
+
+	Returns:
+		list[str | Exception]: For each pair, either the genotype directory
+		path or an exception if the operation failed.
+
+	"""
 	tasks = [
 		download_and_unpack_genotype(get_url, target_dir, client)
 		for get_url, target_dir in source_destination_pairs
@@ -229,7 +312,22 @@ async def upload_phenotype(
 	config: Config,
 	client: httpx.AsyncClient,
 ) -> None:
-	"""Upload phenotype to URLs."""
+	"""Upload phenotype artifacts for a single individual.
+
+	Files to upload are derived from the configuration's
+	`config.evaluate.phenotype` mapping. Only existing files with matching
+	keys in `put_urls` are uploaded.
+
+	Args:
+		phenotype_dir: Absolute directory path containing phenotype files.
+		put_urls: Mapping from phenotype keys to upload URLs.
+		config: The validated configuration object.
+		client: Shared `httpx.AsyncClient` used for uploads.
+
+	Returns:
+		None
+
+	"""
 	phenotype_config = config.evaluate.phenotype
 	tasks: list[Coroutine] = []
 
@@ -254,7 +352,17 @@ async def upload_phenotypes(
 	config: Config,
 	client: httpx.AsyncClient,
 ) -> None:
-	"""Upload multiple phenotypes in parallel."""
+	"""Upload multiple phenotypes in parallel.
+
+	Args:
+		source_destination_pairs: A list of `(phenotype_dir, put_urls)` tuples.
+		config: The validated configuration object.
+		client: Shared `httpx.AsyncClient` used for uploads.
+
+	Returns:
+		None
+
+	"""
 	tasks = [
 		upload_phenotype(phenotype_dir, put_urls, config, client)
 		for phenotype_dir, put_urls in source_destination_pairs
