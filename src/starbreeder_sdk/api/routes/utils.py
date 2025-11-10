@@ -1,8 +1,8 @@
 """Utility helpers used across API routers.
 
-These functions implement common I/O patterns (buffered/streamed HTTP file
-transfer, temporary directory management, and parallel packing/unpacking)
-used by the generation, evaluation, and initialization endpoints.
+These functions implement common I/O patterns (buffered/streamed HTTP file transfer,
+temporary directory management, and parallel packing/unpacking) used by the generation,
+evaluation, and initialization endpoints.
 """
 
 import asyncio
@@ -29,8 +29,7 @@ async def get_config_from_request(request: Request, config_name: str) -> Config:
 	- Raising clear HTTP errors (validation, file not found)
 
 	Args:
-		request: The incoming FastAPI request object. Used to access
-			application state.
+		request: The incoming FastAPI request object. Used to access application state.
 		config_name: The name of the configuration file to load.
 
 	Returns:
@@ -120,9 +119,6 @@ async def download_file_streamed(
 		target_path: Absolute file path to write to.
 		client: An `httpx.AsyncClient` instance to use for the request.
 
-	Returns:
-		None
-
 	Raises:
 		httpx.HTTPStatusError: If the server responds with an error status.
 
@@ -144,9 +140,6 @@ async def upload_file_streamed(
 		source_path: Absolute path to the file to upload.
 		client: An `httpx.AsyncClient` instance to use for the request.
 		content_type: Value for the `Content-Type` header.
-
-	Returns:
-		None
 
 	Raises:
 		httpx.HTTPStatusError: If the server responds with an error status.

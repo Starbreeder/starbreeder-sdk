@@ -37,22 +37,21 @@ async def handle_evaluate(
 		4. Uploads phenotype artifacts for evaluated individuals.
 		5. Returns a per-individual status.
 
-		Individuals that fail to download/unpack are marked with
-		`status="error"` and do not block other evaluations.
+		Individuals that fail to download/unpack are marked with `status="error"`
+		and do not block other evaluations.
 
 	Args:
 		request: The incoming FastAPI request object.
-		evaluate_request: The request payload describing the config and
-			individuals to evaluate.
+		evaluate_request: The request payload describing the config and individuals to
+			evaluate.
 
 	Returns:
-		EvaluateResponse: A response with a result for each requested
-			individual.
+		EvaluateResponse: A response with a result for each requested individual.
 
 	Notes:
-		Exceptions during processing are caught and translated into
-		per-individual error statuses. The endpoint itself does not raise
-		HTTP errors for per-individual failures.
+		Exceptions during processing are caught and translated into per-individual error
+		statuses. The endpoint itself does not raise HTTP errors for per-individual
+		failures.
 
 	"""
 	logger.info(f"Received evaluate request for config: {evaluate_request.config_name}")

@@ -45,8 +45,8 @@ async def handle_generate(
 		GenerateResponse: A response mapping each child to its parent IDs.
 
 	Raises:
-		HTTPException: 500 if configuration loading fails, a parent download
-			fails, or uploading children fails.
+		HTTPException: 500 if configuration loading fails, a parent download fails, or
+			uploading children fails.
 
 	"""
 	logger.info(f"Received generate request for config: {generate_request.config_name}")

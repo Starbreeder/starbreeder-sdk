@@ -1,7 +1,7 @@
 """Configuration endpoint `/config` for modules.
 
-This router exposes a read-only endpoint that loads and validates a module
-configuration file from the module's `configs/` directory.
+This router exposes a read-only endpoint that loads and validates a module configuration
+file from the module's `configs/` directory.
 """
 
 import logging
@@ -19,12 +19,11 @@ router = APIRouter()
 async def handle_config(request: Request, config_name: str) -> Config:
 	"""Return a validated configuration for the given name.
 
-	Modules may extend `Config` and return subclasses which are still
-	serialized according to the base model.
+	Modules may extend `Config` and return subclasses which are still serialized
+	according to the base model.
 
 	Args:
-		request: The incoming FastAPI request object. Used to access
-			application state.
+		request: The incoming FastAPI request object. Used to access application state.
 		config_name: The name of the configuration file to load.
 
 	Returns:

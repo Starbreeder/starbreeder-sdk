@@ -13,8 +13,8 @@ def handle_health(request: Request):
 		request: The incoming FastAPI request object.
 
 	Returns:
-		dict[str, str | None]: A minimal health payload including the module
-		name (if initialized) and a static status value.
+		dict[str, str | None]: A minimal health payload including the module name (if
+			initialized) and a static status value.
 
 	"""
 	return {

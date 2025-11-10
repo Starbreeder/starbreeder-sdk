@@ -1,8 +1,8 @@
 """FastAPI app factory for Starbreeder modules.
 
-This module exposes `create_app`, which wires a concrete module implementation
-into the SDK's HTTP API. On startup it sets `app.state` with module metadata
-and verifies that the module's `configs/` directory exists.
+This module exposes `create_app`, which wires a concrete module implementation into the
+SDK's HTTP API. On startup it sets `app.state` with module metadata and verifies that
+the module's `configs/` directory exists.
 
 Example:
 	Basic usage to run a module with Uvicorn:

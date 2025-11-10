@@ -37,10 +37,9 @@ async def handle_initialize(
 		5. Archives and uploads each root's genotype.
 
 	Args:
-		request: The incoming FastAPI request object. Used to access
-			application state.
-		initialize_request: The request body containing the configuration file
-			and root individuals.
+		request: The incoming FastAPI request object. Used to access application state.
+		initialize_request: The request body containing the configuration file and root
+			individuals.
 
 	Returns:
 		InitializeResponse: A response containing the created root individuals.

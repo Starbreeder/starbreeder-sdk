@@ -1,16 +1,15 @@
 """Module protocol for Starbreeder modules.
 
-This file defines the interface a Starbreeder module must implement to plug
-into the SDK web service. A concrete module provides its own evolutionary
-logic while the SDK handles HTTP I/O, concurrency, and object-store
-integration.
+This file defines the interface Starbreeder modules must implement to plug into the
+Starbreeder SDK. A concrete module provides its own evolutionary logic while the SDK
+handles HTTP I/O, concurrency, and object-store integration.
 
 Notes:
 	- Implementations may subclass `Config` to add module-specific fields.
-	- All file-system paths are absolute and refer to temporary working
-		directories created by the SDK.
-	- Implementations MUST be thread-safe for blocking work or strictly
-		perform blocking work only on the thread they are invoked on.
+	- All file-system paths are absolute and refer to temporary working directories
+		created by the SDK.
+	- Implementations MUST be thread-safe for blocking work or strictly perform blocking
+		work only on the thread they are invoked on.
 
 """
 
@@ -24,8 +23,8 @@ class Module(Protocol):
 
 	Attributes:
 		module_name: Human-readable, short module name (e.g. "lenia").
-		module_dir: Absolute path to the module's root directory that contains
-			a `configs/` subdirectory with configuration files.
+		module_dir: Absolute path to the module's root directory that contains a
+			`configs/` subdirectory with configuration files.
 
 	"""
 
@@ -36,8 +35,7 @@ class Module(Protocol):
 		"""Load and validate a module configuration.
 
 		Args:
-			config_path: Absolute path to a module config file to parse and
-				validate.
+			config_path: Absolute path to a module config file to parse and validate.
 
 		Returns:
 			Config: A validated configuration instance (or subclass).
@@ -57,13 +55,13 @@ class Module(Protocol):
 	) -> None:
 		"""Generate root genotypes.
 
-		The implementation must write genotype files to the provided
-		per-root directories. The key for `genotype_dirs_map` is a root key
-		declared in the configuration.
+		The implementation must write genotype files to the provided per-root
+		directories. The key for `genotype_dirs_map` is a root key declared in the
+		configuration.
 
 		Args:
-			genotype_dirs_map: Mapping of root keys to absolute directories
-				where genotype files MUST be written under `genotype/`.
+			genotype_dirs_map: Mapping of root keys to absolute directories where
+				genotype files MUST be written under `genotype/`.
 			config: The validated configuration object.
 			params: Optional free-form parameters.
 
@@ -82,14 +80,14 @@ class Module(Protocol):
 	) -> None:
 		"""Evaluate genotypes.
 
-		The implementation must read each genotype directory and write all
-		required phenotype files into the corresponding phenotype directory as
-		described by `config.evaluate.phenotype`.
+		The implementation must read each genotype directory and write all required
+		phenotype files into the corresponding phenotype directory as described by
+		`config.evaluate.phenotype`.
 
 		Args:
 			genotype_dirs: Absolute paths to genotype directories (input).
-			phenotype_dirs: Absolute paths to phenotype directories (output).
-				Must be one-to-one aligned with `genotype_dirs`.
+			phenotype_dirs: Absolute paths to phenotype directories (output). Must be
+				one-to-one aligned with `genotype_dirs`.
 			config: The validated configuration object.
 			params: Optional free-form parameters.
 
@@ -111,21 +109,20 @@ class Module(Protocol):
 	) -> list[list[int]]:
 		"""Generate child genotypes from parent genotypes.
 
-		The implementation must write each child's genotype files into the
-		corresponding directory in `child_genotype_dirs`. It must also return,
-		for each child, the indices of parent(s) used to produce it.
+		The implementation must write each child's genotype files into the corresponding
+		directory in `child_genotype_dirs`. It must also return, for each child, the
+		indices of parent(s) used to produce it.
 
 		Args:
-			parent_genotype_dirs: Absolute paths to parent genotype
-				directories.
-			child_genotype_dirs: Absolute paths where child genotype files must
-				be written.
+			parent_genotype_dirs: Absolute paths to parent genotype directories.
+			child_genotype_dirs: Absolute paths where child genotype files must be
+				written.
 			config: The validated configuration object.
 			params: Optional free-form parameters.
 
 		Returns:
 			list[list[int]]: For each child index i, a list of indices into
-			`parent_genotype_dirs` indicating the child's parentage.
+				`parent_genotype_dirs` indicating the child's parentage.
 
 		Raises:
 			Exception: If generation fails or outputs are incomplete.
