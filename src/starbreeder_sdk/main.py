@@ -74,15 +74,12 @@ def create_app(module: Module) -> FastAPI:
 		try:
 			app.state.module_name = _module_name
 			app.state.module_dir = _module_dir
-			app.state.configs_dir = os.path.join(
-				app.state.module_dir, "configs"
-			)
+			app.state.configs_dir = os.path.join(app.state.module_dir, "configs")
 			app.state.module = module
 
 			if not os.path.exists(app.state.configs_dir):
 				raise ValueError(
-					"FATAL: configs directory not found at "
-					f"{app.state.configs_dir}"
+					f"FATAL: configs directory not found at {app.state.configs_dir}"
 				)
 
 		except Exception as e:

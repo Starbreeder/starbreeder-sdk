@@ -49,22 +49,14 @@ async def handle_generate(
 			fails, or uploading children fails.
 
 	"""
-	logger.info(
-		f"Received generate request for config: {generate_request.config_name}"
-	)
+	logger.info(f"Received generate request for config: {generate_request.config_name}")
 
 	# 1. Load config
 	try:
-		config = await get_config_from_request(
-			request, generate_request.config_name
-		)
+		config = await get_config_from_request(request, generate_request.config_name)
 	except HTTPException as e:
-		logger.error(
-			f"Config error for '{generate_request.config_name}': {e.detail}"
-		)
-		raise HTTPException(
-			status_code=500, detail=f"Configuration error: {e.detail}"
-		)
+		logger.error(f"Config error for '{generate_request.config_name}': {e.detail}")
+		raise HTTPException(status_code=500, detail=f"Configuration error: {e.detail}")
 
 	async with manage_tmp_dir() as tmp_dir:
 		try:
@@ -74,9 +66,7 @@ async def handle_generate(
 				for parent_individual in generate_request.parent_individuals
 			]
 			parent_dirs: dict[str, str] = {}
-			async with httpx.AsyncClient(
-				timeout=settings.HTTPX_TIMEOUT
-			) as client:
+			async with httpx.AsyncClient(timeout=settings.HTTPX_TIMEOUT) as client:
 				source_destination_pairs = []
 				for child_individual in generate_request.parent_individuals:
 					individual_tmp_dir = os.path.join(
@@ -96,15 +86,11 @@ async def handle_generate(
 				if isinstance(result, Exception):
 					parent_id = generate_request.parent_individuals[i].id
 					logger.error(
-						f"Failed to download/unpack for parent "
-						f"{parent_id}: {result}"
+						f"Failed to download/unpack for parent {parent_id}: {result}"
 					)
 					raise HTTPException(
 						status_code=500,
-						detail=(
-							f"Failed to download genotype for parent "
-							f"{parent_id}"
-						),
+						detail=(f"Failed to download genotype for parent {parent_id}"),
 					)
 				parent_dirs[parent_ids[i]] = result
 				valid_parent_dirs.append(result)
@@ -112,9 +98,7 @@ async def handle_generate(
 			# 3. Create directories for each child genotype
 			child_genotype_dirs_map: dict[str, str] = {}
 			for child_individual in generate_request.child_individuals:
-				child_dir = os.path.join(
-					tmp_dir, "children", child_individual.id
-				)
+				child_dir = os.path.join(tmp_dir, "children", child_individual.id)
 				# The module saves the genotype files inside this nested dir
 				genotype_dir = os.path.join(child_dir, "genotype")
 				await asyncio.to_thread(os.makedirs, genotype_dir)
@@ -138,12 +122,8 @@ async def handle_generate(
 				)
 				for individual in generate_request.child_individuals
 			]
-			async with httpx.AsyncClient(
-				timeout=settings.HTTPX_TIMEOUT
-			) as client:
-				await pack_and_upload_genotypes(
-					source_destination_pairs, client
-				)
+			async with httpx.AsyncClient(timeout=settings.HTTPX_TIMEOUT) as client:
+				await pack_and_upload_genotypes(source_destination_pairs, client)
 
 		except Exception as e:
 			logger.error(f"Error during breeding process: {e}", exc_info=True)
@@ -153,9 +133,7 @@ async def handle_generate(
 	# 6. Return the success response
 	response_individuals = []
 	for i, child_individual in enumerate(generate_request.child_individuals):
-		parent_ids_for_child = [
-			parent_ids[p_idx] for p_idx in parentage_indices[i]
-		]
+		parent_ids_for_child = [parent_ids[p_idx] for p_idx in parentage_indices[i]]
 		response_individuals.append(
 			ChildIndividualGenerateResponse(
 				id=child_individual.id, parent_ids=parent_ids_for_child

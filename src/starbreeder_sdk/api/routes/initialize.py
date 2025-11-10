@@ -51,9 +51,7 @@ async def handle_initialize(
 
 	"""
 	# 1. Load config
-	config = await get_config_from_request(
-		request, initialize_request.config_name
-	)
+	config = await get_config_from_request(request, initialize_request.config_name)
 
 	# 2. Validate request against config
 	config_root_keys = set(config.initialize.roots)
@@ -73,9 +71,7 @@ async def handle_initialize(
 			# 3. Create directories for each root genotype
 			genotype_dirs_map: dict[str, str] = {}
 			for individual in initialize_request.root_individuals:
-				genotype_dir = os.path.join(
-					tmp_dir, individual.key, "genotype"
-				)
+				genotype_dir = os.path.join(tmp_dir, individual.key, "genotype")
 				await asyncio.to_thread(os.makedirs, genotype_dir)
 				genotype_dirs_map[individual.key] = genotype_dir
 
@@ -95,17 +91,11 @@ async def handle_initialize(
 				)
 				for individual in initialize_request.root_individuals
 			]
-			async with httpx.AsyncClient(
-				timeout=settings.HTTPX_TIMEOUT
-			) as client:
-				await pack_and_upload_genotypes(
-					source_destination_pairs, client
-				)
+			async with httpx.AsyncClient(timeout=settings.HTTPX_TIMEOUT) as client:
+				await pack_and_upload_genotypes(source_destination_pairs, client)
 
 		except Exception as e:
-			logger.error(
-				f"Error during root genotypes init: {e}", exc_info=True
-			)
+			logger.error(f"Error during root genotypes init: {e}", exc_info=True)
 			detail = f"Failed to initialize root population: {e}"
 			raise HTTPException(status_code=500, detail=detail)
 

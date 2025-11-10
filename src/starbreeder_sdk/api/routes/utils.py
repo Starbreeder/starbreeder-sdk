@@ -20,9 +20,7 @@ from fastapi import HTTPException, Request
 from starbreeder_sdk.core.module_config import Config
 
 
-async def get_config_from_request(
-	request: Request, config_name: str
-) -> Config:
+async def get_config_from_request(request: Request, config_name: str) -> Config:
 	"""Load and validate a module configuration by name.
 
 	This helper centralizes logic for:
@@ -50,17 +48,14 @@ async def get_config_from_request(
 		raise HTTPException(
 			status_code=500,
 			detail=(
-				"Module is not properly configured. "
-				"Missing app.state.configs_dir."
+				"Module is not properly configured. Missing app.state.configs_dir."
 			),
 		)
 
 	config_path = os.path.join(configs_dir, config_name)
 
 	try:
-		config = await asyncio.to_thread(
-			request.app.state.module.config, config_path
-		)
+		config = await asyncio.to_thread(request.app.state.module.config, config_path)
 		return config
 	except FileNotFoundError:
 		raise HTTPException(
@@ -215,9 +210,7 @@ async def pack_and_upload_genotype(
 		)
 
 		# 2. Stream the created archive to the object store
-		await upload_file_streamed(
-			put_url, archive_path, client, "application/x-tar"
-		)
+		await upload_file_streamed(put_url, archive_path, client, "application/x-tar")
 
 
 async def download_and_unpack_genotype(
@@ -247,9 +240,7 @@ async def download_and_unpack_genotype(
 		await download_file_streamed(get_url, tmp_file, client)
 
 		# 2. Unpack the archive (this is a blocking, I/O-bound operation)
-		await asyncio.to_thread(
-			shutil.unpack_archive, tmp_file, target_dir, "tar"
-		)
+		await asyncio.to_thread(shutil.unpack_archive, tmp_file, target_dir, "tar")
 	finally:
 		# 3. Ensure the temporary archive file is always cleaned up
 		if await aiofiles.os.path.exists(tmp_file):
@@ -258,9 +249,7 @@ async def download_and_unpack_genotype(
 	# 4. Verify that the expected genotype directory exists and return its path
 	genotype_dir = os.path.join(target_dir, "genotype")
 	if not os.path.isdir(genotype_dir):
-		raise FileNotFoundError(
-			"'genotype/' directory not found in tar archive."
-		)
+		raise FileNotFoundError("'genotype/' directory not found in tar archive.")
 
 	return genotype_dir
 

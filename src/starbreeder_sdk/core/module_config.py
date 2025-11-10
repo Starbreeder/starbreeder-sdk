@@ -53,9 +53,7 @@ class Config(BaseModel):
 	generate: GenerateConfig
 
 
-def load_config_from_file[T: BaseModel](
-	config_path: str, config_class: type[T]
-) -> T:
+def load_config_from_file[T: BaseModel](config_path: str, config_class: type[T]) -> T:
 	"""Load and validate config."""
 	logger.info(f"Loading configuration from: {config_path}")
 	try:
