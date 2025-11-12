@@ -5,7 +5,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
-# === /initialize ===
+# --- Initialize ---
 class RootIndividualInitialize(BaseModel):
 	"""Schema for a root individual in the /initialize request."""
 
@@ -34,7 +34,7 @@ class InitializeResponse(BaseModel):
 	root_individuals: list[RootIndividualInitializeResponse]
 
 
-# === /evaluate ===
+# --- Evaluate ---
 class IndividualEvaluate(BaseModel):
 	"""Schema for an individual to be evaluated in the /evaluate request."""
 
@@ -65,7 +65,7 @@ class EvaluateResponse(BaseModel):
 	individuals: list[IndividualEvaluateResponse]
 
 
-# === /generate ===
+# --- Generate ---
 class ParentIndividualGenerate(BaseModel):
 	"""Schema for a parent individual in the /generate request."""
 

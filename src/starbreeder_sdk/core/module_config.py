@@ -1,4 +1,4 @@
-"""Base configuration for breeder services."""
+"""Base configuration for modules."""
 
 import logging
 from typing import Any

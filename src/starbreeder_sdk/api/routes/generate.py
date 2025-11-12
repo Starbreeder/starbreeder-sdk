@@ -126,7 +126,7 @@ async def handle_generate(
 				await pack_and_upload_genotypes(source_destination_pairs, client)
 
 		except Exception as e:
-			logger.error(f"Error during breeding process: {e}", exc_info=True)
+			logger.error(f"Error during generate process: {e}", exc_info=True)
 			detail = f"Failed to create new population: {e}"
 			raise HTTPException(status_code=500, detail=detail)
 
