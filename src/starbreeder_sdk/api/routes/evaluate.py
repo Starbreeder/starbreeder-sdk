@@ -24,7 +24,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.post("/", response_model=EvaluateResponse)
+@router.post("", response_model=EvaluateResponse)
 async def handle_evaluate(
 	request: Request, evaluate_request: EvaluateRequest
 ) -> EvaluateResponse:

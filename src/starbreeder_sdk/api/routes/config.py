@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("/", response_model=Config)
+@router.get("", response_model=Config)
 async def handle_config(request: Request, config_name: str) -> Config:
 	"""Return a validated configuration for the given name.
 

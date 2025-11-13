@@ -5,7 +5,7 @@ from fastapi import APIRouter, Request
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("")
 def handle_health(request: Request):
 	"""Return lightweight runtime status.
 

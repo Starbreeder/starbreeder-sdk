@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/", response_model=InitializeResponse)
+@router.post("", response_model=InitializeResponse)
 async def handle_initialize(
 	request: Request, initialize_request: InitializeRequest
 ) -> InitializeResponse:

@@ -24,7 +24,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.post("/", response_model=GenerateResponse)
+@router.post("", response_model=GenerateResponse)
 async def handle_generate(
 	request: Request, generate_request: GenerateRequest
 ) -> GenerateResponse:
