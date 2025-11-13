@@ -5,7 +5,7 @@ import logging
 import os
 
 import httpx
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, status
 
 from starbreeder_sdk.api.routes.utils import (
 	download_and_unpack_genotypes,
@@ -24,11 +24,16 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.post("", response_model=GenerateResponse)
+@router.post(
+	"",
+	response_model=GenerateResponse,
+	status_code=status.HTTP_200_OK,
+	summary="Generate child individuals from parent individuals",
+)
 async def handle_generate(
 	request: Request, generate_request: GenerateRequest
 ) -> GenerateResponse:
-	"""Generate child genotypes from a set of parents.
+	"""Generate child individuals from parent individuals.
 
 	This endpoint:
 		1. Loads the requested configuration.

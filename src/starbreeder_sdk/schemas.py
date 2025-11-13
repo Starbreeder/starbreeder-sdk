@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 # --- Initialize ---
 class RootIndividualInitialize(BaseModel):
-	"""Schema for a root individual in the /initialize request."""
+	"""Schema for a root individual in the `/initialize` request."""
 
 	id: str
 	key: str
@@ -15,28 +15,28 @@ class RootIndividualInitialize(BaseModel):
 
 
 class InitializeRequest(BaseModel):
-	"""Request body for /initialize endpoint."""
+	"""Request body for `/initialize` endpoint."""
 
 	config_name: str
 	root_individuals: list[RootIndividualInitialize]
 
 
 class RootIndividualInitializeResponse(BaseModel):
-	"""Schema for a created root individual in the /initialize response."""
+	"""Schema for a created root individual in the `/initialize` response."""
 
 	id: str
 	parent_ids: list[str] = Field(default_factory=list)
 
 
 class InitializeResponse(BaseModel):
-	"""Response body for /initialize endpoint."""
+	"""Response body for `/initialize` endpoint."""
 
 	root_individuals: list[RootIndividualInitializeResponse]
 
 
 # --- Evaluate ---
 class IndividualEvaluate(BaseModel):
-	"""Schema for an individual to be evaluated in the /evaluate request."""
+	"""Schema for an individual to be evaluated in the `/evaluate` request."""
 
 	id: str
 	genotype_get_url: str
@@ -44,7 +44,7 @@ class IndividualEvaluate(BaseModel):
 
 
 class EvaluateRequest(BaseModel):
-	"""Request body for /evaluate endpoint."""
+	"""Request body for `/evaluate` endpoint."""
 
 	config_name: str
 	individuals: list[IndividualEvaluate]
@@ -52,7 +52,7 @@ class EvaluateRequest(BaseModel):
 
 
 class IndividualEvaluateResponse(BaseModel):
-	"""Schema for an evaluated individual in the /evaluate response."""
+	"""Schema for an evaluated individual in the `/evaluate` response."""
 
 	id: str
 	status: str
@@ -60,28 +60,28 @@ class IndividualEvaluateResponse(BaseModel):
 
 
 class EvaluateResponse(BaseModel):
-	"""Response body for /evaluate endpoint."""
+	"""Response body for `/evaluate` endpoint."""
 
 	individuals: list[IndividualEvaluateResponse]
 
 
 # --- Generate ---
 class ParentIndividualGenerate(BaseModel):
-	"""Schema for a parent individual in the /generate request."""
+	"""Schema for a parent individual in the `/generate` request."""
 
 	id: str
 	genotype_get_url: str
 
 
 class ChildIndividualGenerate(BaseModel):
-	"""Schema for a child individual to be created in the /generate request."""
+	"""Schema for a child individual to be created in the `/generate` request."""
 
 	id: str
 	genotype_put_url: str
 
 
 class GenerateRequest(BaseModel):
-	"""Request body for /generate endpoint."""
+	"""Request body for `/generate` endpoint."""
 
 	config_name: str
 	parent_individuals: list[ParentIndividualGenerate]
@@ -90,13 +90,13 @@ class GenerateRequest(BaseModel):
 
 
 class ChildIndividualGenerateResponse(BaseModel):
-	"""Schema for a created child individual in the /generate response."""
+	"""Schema for a created child individual in the `/generate` response."""
 
 	id: str
 	parent_ids: list[str]
 
 
 class GenerateResponse(BaseModel):
-	"""Response body for /generate endpoint."""
+	"""Response body for `/generate` endpoint."""
 
 	child_individuals: list[ChildIndividualGenerateResponse]

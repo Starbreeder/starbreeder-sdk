@@ -1,13 +1,17 @@
 """Health-check endpoint `/health` for modules."""
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, status
 
 router = APIRouter()
 
 
-@router.get("")
+@router.get(
+	"",
+	status_code=status.HTTP_200_OK,
+	summary="Health",
+)
 def handle_health(request: Request):
-	"""Return lightweight runtime status.
+	"""Health.
 
 	Args:
 		request: The incoming FastAPI request object.

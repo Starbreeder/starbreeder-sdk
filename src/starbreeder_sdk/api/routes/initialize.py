@@ -5,7 +5,7 @@ import logging
 import os
 
 import httpx
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, status
 
 from starbreeder_sdk.api.routes.utils import (
 	get_config_from_request,
@@ -23,11 +23,16 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("", response_model=InitializeResponse)
+@router.post(
+	"",
+	response_model=InitializeResponse,
+	status_code=status.HTTP_200_OK,
+	summary="Initialize root individuals",
+)
 async def handle_initialize(
 	request: Request, initialize_request: InitializeRequest
 ) -> InitializeResponse:
-	"""Create and upload root genotypes for a new population.
+	"""Initialize root individuals.
 
 	This endpoint:
 		1. Loads the requested configuration.

@@ -5,7 +5,7 @@ import logging
 import os
 
 import httpx
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, status
 
 from starbreeder_sdk.api.routes.utils import (
 	download_and_unpack_genotypes,
@@ -24,11 +24,16 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.post("", response_model=EvaluateResponse)
+@router.post(
+	"",
+	response_model=EvaluateResponse,
+	status_code=status.HTTP_200_OK,
+	summary="Evaluate individuals",
+)
 async def handle_evaluate(
 	request: Request, evaluate_request: EvaluateRequest
 ) -> EvaluateResponse:
-	"""Evaluate a batch of genotypes and upload phenotypes.
+	"""Evaluate individuals.
 
 	This endpoint:
 		1. Loads the requested configuration.

@@ -7,7 +7,7 @@ file from the module's `configs/` directory.
 import logging
 import os
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, status
 
 from starbreeder_sdk.core.module_config import Config
 
@@ -15,9 +15,14 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("", response_model=Config)
+@router.get(
+	"",
+	response_model=Config,
+	status_code=status.HTTP_200_OK,
+	summary="Get configuration",
+)
 async def handle_config(request: Request, config_name: str) -> Config:
-	"""Return a validated configuration for the given name.
+	"""Get configuration.
 
 	Modules may extend `Config` and return subclasses which are still serialized
 	according to the base model.
@@ -27,7 +32,7 @@ async def handle_config(request: Request, config_name: str) -> Config:
 		config_name: The name of the configuration file to load.
 
 	Returns:
-		Config: A validated configuration model instance.
+		Config: A validated configuration.
 
 	Raises:
 		HTTPException: 500 if the service is misconfigured (e.g. missing
