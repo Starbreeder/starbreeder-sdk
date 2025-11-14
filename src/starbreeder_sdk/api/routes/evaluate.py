@@ -15,9 +15,9 @@ from starbreeder_sdk.api.routes.utils import (
 )
 from starbreeder_sdk.core.config import settings
 from starbreeder_sdk.schemas import (
+	EvaluateIndividualOutput,
 	EvaluateRequest,
 	EvaluateResponse,
-	IndividualEvaluateResponse,
 )
 
 router = APIRouter()
@@ -67,7 +67,7 @@ async def handle_evaluate(
 	except HTTPException as e:
 		logger.error(f"Config error for '{evaluate_request.config_name}': {e.detail}")
 		responses = [
-			IndividualEvaluateResponse(
+			EvaluateIndividualOutput(
 				id=individual.id,
 				status="error",
 				message=f"Configuration error: {e.detail}",
@@ -95,7 +95,7 @@ async def handle_evaluate(
 			individuals_to_eval = []
 			valid_genotype_dirs = []
 			valid_phenotype_dirs = []
-			eval_statuses: dict[str, IndividualEvaluateResponse] = {}
+			eval_statuses: dict[str, EvaluateIndividualOutput] = {}
 
 			for individual, result in zip(
 				evaluate_request.individuals, download_results
@@ -105,7 +105,7 @@ async def handle_evaluate(
 						f"Failed to download/unpack for individual "
 						f"{individual.id}: {result}"
 					)
-					eval_statuses[individual.id] = IndividualEvaluateResponse(
+					eval_statuses[individual.id] = EvaluateIndividualOutput(
 						id=individual.id,
 						status="error",
 						message="Failed during download/unpack phase",
@@ -144,7 +144,7 @@ async def handle_evaluate(
 
 				# Mark successfully processed individuals
 				for individual in individuals_to_eval:
-					eval_statuses[individual.id] = IndividualEvaluateResponse(
+					eval_statuses[individual.id] = EvaluateIndividualOutput(
 						id=individual.id, status="success"
 					)
 
@@ -162,7 +162,7 @@ async def handle_evaluate(
 			)
 			# Create a generic error response for all individuals
 			error_responses = [
-				IndividualEvaluateResponse(
+				EvaluateIndividualOutput(
 					id=individual.id, status="error", message=str(e)
 				)
 				for individual in evaluate_request.individuals

@@ -16,7 +16,7 @@ from starbreeder_sdk.core.config import settings
 from starbreeder_sdk.schemas import (
 	InitializeRequest,
 	InitializeResponse,
-	RootIndividualInitializeResponse,
+	InitializeRootIndividualOutput,
 )
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ async def handle_initialize(
 	config = await get_config_from_request(request, initialize_request.config_name)
 
 	# 2. Validate request against config
-	config_root_keys = set(config.initialize.roots)
+	config_root_keys = set(config.initialize.root_individuals)
 	request_root_keys = set(
 		individual.key for individual in initialize_request.root_individuals
 	)
@@ -105,7 +105,7 @@ async def handle_initialize(
 
 	# 6. Return the success response
 	response_individuals = [
-		RootIndividualInitializeResponse(id=individual.id, parent_ids=[])
+		InitializeRootIndividualOutput(id=individual.id, parent_ids=[])
 		for individual in initialize_request.root_individuals
 	]
 	return InitializeResponse(root_individuals=response_individuals)

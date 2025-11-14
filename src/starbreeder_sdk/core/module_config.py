@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 # --- Initialize config ---
-class InitializeRootConfig(BaseModel):
-	"""Initialize root configuration."""
+class InitializeRootIndividualConfig(BaseModel):
+	"""Initialize root individual configuration."""
 
 	method: str
 	params: dict[str, Any] | None = None
@@ -20,12 +20,12 @@ class InitializeRootConfig(BaseModel):
 class InitializeConfig(BaseModel):
 	"""Initialize configuration."""
 
-	roots: dict[str, InitializeRootConfig]
+	root_individuals: dict[str, InitializeRootIndividualConfig]
 
 
 # --- Evaluate config ---
-class PhenotypeFileConfig(BaseModel):
-	"""Phenotype file configuration."""
+class EvaluatePhenotypeConfig(BaseModel):
+	"""Evaluate phenotype configuration."""
 
 	name: str
 	content_type: str
@@ -34,7 +34,7 @@ class PhenotypeFileConfig(BaseModel):
 class EvaluateConfig(BaseModel):
 	"""Evaluate configuration."""
 
-	phenotype: dict[str, PhenotypeFileConfig]
+	phenotype: dict[str, EvaluatePhenotypeConfig]
 
 
 # --- Generate config ---

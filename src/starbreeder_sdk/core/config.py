@@ -6,9 +6,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
 	"""Manages application-level settings.
 
-	Pydantic's `BaseSettings` automatically reads from environment variables. For example,
-	the value for `httpx_timeout` will be sourced from the `HTTPX_TIMEOUT` environment
-	variable.
+	Pydantic's `BaseSettings` automatically reads from environment variables. For
+	example, the value for `httpx_timeout` will be sourced from the `HTTPX_TIMEOUT`
+	environment variable.
 	"""
 
 	model_config = SettingsConfigDict(

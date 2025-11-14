@@ -15,7 +15,7 @@ from starbreeder_sdk.api.routes.utils import (
 )
 from starbreeder_sdk.core.config import settings
 from starbreeder_sdk.schemas import (
-	ChildIndividualGenerateResponse,
+	GenerateChildIndividualOutput,
 	GenerateRequest,
 	GenerateResponse,
 )
@@ -140,7 +140,7 @@ async def handle_generate(
 	for i, child_individual in enumerate(generate_request.child_individuals):
 		parent_ids_for_child = [parent_ids[p_idx] for p_idx in parentage_indices[i]]
 		response_individuals.append(
-			ChildIndividualGenerateResponse(
+			GenerateChildIndividualOutput(
 				id=child_individual.id, parent_ids=parent_ids_for_child
 			)
 		)

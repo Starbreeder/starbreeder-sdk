@@ -6,8 +6,8 @@ from pydantic import BaseModel, Field
 
 
 # --- Initialize ---
-class RootIndividualInitialize(BaseModel):
-	"""Schema for a root individual in the `/initialize` request."""
+class InitializeRootIndividualInput(BaseModel):
+	"""Input schema for a root individual in the `/initialize` request."""
 
 	id: str
 	key: str
@@ -18,11 +18,11 @@ class InitializeRequest(BaseModel):
 	"""Request body for `/initialize` endpoint."""
 
 	config_name: str
-	root_individuals: list[RootIndividualInitialize]
+	root_individuals: list[InitializeRootIndividualInput]
 
 
-class RootIndividualInitializeResponse(BaseModel):
-	"""Schema for a created root individual in the `/initialize` response."""
+class InitializeRootIndividualOutput(BaseModel):
+	"""Output schema for a created root individual in the `/initialize` response."""
 
 	id: str
 	parent_ids: list[str] = Field(default_factory=list)
@@ -31,12 +31,12 @@ class RootIndividualInitializeResponse(BaseModel):
 class InitializeResponse(BaseModel):
 	"""Response body for `/initialize` endpoint."""
 
-	root_individuals: list[RootIndividualInitializeResponse]
+	root_individuals: list[InitializeRootIndividualOutput]
 
 
 # --- Evaluate ---
-class IndividualEvaluate(BaseModel):
-	"""Schema for an individual to be evaluated in the `/evaluate` request."""
+class EvaluateIndividualInput(BaseModel):
+	"""Input schema for an individual to be evaluated in the `/evaluate` request."""
 
 	id: str
 	genotype_get_url: str
@@ -47,12 +47,12 @@ class EvaluateRequest(BaseModel):
 	"""Request body for `/evaluate` endpoint."""
 
 	config_name: str
-	individuals: list[IndividualEvaluate]
+	individuals: list[EvaluateIndividualInput]
 	params: dict[str, Any] | None = None
 
 
-class IndividualEvaluateResponse(BaseModel):
-	"""Schema for an evaluated individual in the `/evaluate` response."""
+class EvaluateIndividualOutput(BaseModel):
+	"""Output schema for an evaluated individual in the `/evaluate` response."""
 
 	id: str
 	status: str
@@ -62,19 +62,19 @@ class IndividualEvaluateResponse(BaseModel):
 class EvaluateResponse(BaseModel):
 	"""Response body for `/evaluate` endpoint."""
 
-	individuals: list[IndividualEvaluateResponse]
+	individuals: list[EvaluateIndividualOutput]
 
 
 # --- Generate ---
-class ParentIndividualGenerate(BaseModel):
-	"""Schema for a parent individual in the `/generate` request."""
+class GenerateParentIndividualInput(BaseModel):
+	"""Input schema for a parent individual in the `/generate` request."""
 
 	id: str
 	genotype_get_url: str
 
 
-class ChildIndividualGenerate(BaseModel):
-	"""Schema for a child individual to be created in the `/generate` request."""
+class GenerateChildIndividualInput(BaseModel):
+	"""Input schema for a child individual to be created in the `/generate` request."""
 
 	id: str
 	genotype_put_url: str
@@ -84,13 +84,13 @@ class GenerateRequest(BaseModel):
 	"""Request body for `/generate` endpoint."""
 
 	config_name: str
-	parent_individuals: list[ParentIndividualGenerate]
-	child_individuals: list[ChildIndividualGenerate]
+	parent_individuals: list[GenerateParentIndividualInput]
+	child_individuals: list[GenerateChildIndividualInput]
 	params: dict[str, Any] | None = None
 
 
-class ChildIndividualGenerateResponse(BaseModel):
-	"""Schema for a created child individual in the `/generate` response."""
+class GenerateChildIndividualOutput(BaseModel):
+	"""Output schema for a created child individual in the `/generate` response."""
 
 	id: str
 	parent_ids: list[str]
@@ -99,4 +99,4 @@ class ChildIndividualGenerateResponse(BaseModel):
 class GenerateResponse(BaseModel):
 	"""Response body for `/generate` endpoint."""
 
-	child_individuals: list[ChildIndividualGenerateResponse]
+	child_individuals: list[GenerateChildIndividualOutput]

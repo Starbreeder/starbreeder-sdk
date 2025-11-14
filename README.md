@@ -62,7 +62,7 @@ All endpoints are mounted under `/`:
   Loads and validates a config file from `configs/`. Returns the validated model (modules may extend `Config`).
 
 - POST `/initialize`  
-  Creates root genotypes and uploads them. The request must contain a `config_name` and a list of `root_individuals` whose keys match the config’s declared roots.
+  Creates root genotypes and uploads them. The request must contain a `config_name` and a list of `root_individuals` whose keys match the config’s declared root individuals.
 
 - POST `/evaluate`  
   Downloads genotypes, evaluates them via `module.evaluate`, uploads phenotype artifacts, and returns per‑individual statuses.
