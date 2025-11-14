@@ -99,7 +99,7 @@ async def handle_initialize(
 				await pack_and_upload_genotypes(source_destination_pairs, client)
 
 		except Exception as e:
-			logger.error(f"Error during root genotypes init: {e}", exc_info=True)
+			logger.exception("Error during root genotypes init")
 			detail = f"Failed to initialize root population: {e}"
 			raise HTTPException(status_code=500, detail=detail)
 

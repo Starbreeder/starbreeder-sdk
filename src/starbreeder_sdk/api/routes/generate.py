@@ -54,13 +54,20 @@ async def handle_generate(
 			uploading children fails.
 
 	"""
-	logger.info(f"Received generate request for config: {generate_request.config_name}")
+	logger.info(
+		"Received generate request for config: %s",
+		generate_request.config_name,
+	)
 
 	# 1. Load config
 	try:
 		config = await get_config_from_request(request, generate_request.config_name)
 	except HTTPException as e:
-		logger.error(f"Config error for '{generate_request.config_name}': {e.detail}")
+		logger.exception(
+			"Config error for '%s': %s",
+			generate_request.config_name,
+			e.detail,
+		)
 		raise HTTPException(status_code=500, detail=f"Configuration error: {e.detail}")
 
 	async with manage_tmp_dir() as tmp_dir:
@@ -91,7 +98,9 @@ async def handle_generate(
 				if isinstance(result, Exception):
 					parent_id = generate_request.parent_individuals[i].id
 					logger.error(
-						f"Failed to download/unpack for parent {parent_id}: {result}"
+						"Failed to download/unpack for parent %s: %s",
+						parent_id,
+						result,
 					)
 					raise HTTPException(
 						status_code=500,
@@ -131,7 +140,7 @@ async def handle_generate(
 				await pack_and_upload_genotypes(source_destination_pairs, client)
 
 		except Exception as e:
-			logger.error(f"Error during generate process: {e}", exc_info=True)
+			logger.exception("Error during generate process")
 			detail = f"Failed to create new population: {e}"
 			raise HTTPException(status_code=500, detail=detail)
 

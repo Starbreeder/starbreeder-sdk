@@ -59,13 +59,20 @@ async def handle_evaluate(
 		failures.
 
 	"""
-	logger.info(f"Received evaluate request for config: {evaluate_request.config_name}")
+	logger.info(
+		"Received evaluate request for config: %s",
+		evaluate_request.config_name,
+	)
 
 	# 1. Load config
 	try:
 		config = await get_config_from_request(request, evaluate_request.config_name)
 	except HTTPException as e:
-		logger.error(f"Config error for '{evaluate_request.config_name}': {e.detail}")
+		logger.exception(
+			"Config error for '%s': %s",
+			evaluate_request.config_name,
+			e.detail,
+		)
 		responses = [
 			EvaluateIndividualOutput(
 				id=individual.id,
@@ -102,8 +109,9 @@ async def handle_evaluate(
 			):
 				if isinstance(result, Exception):
 					logger.error(
-						f"Failed to download/unpack for individual "
-						f"{individual.id}: {result}"
+						"Failed to download/unpack for individual %s: %s",
+						individual.id,
+						result,
 					)
 					eval_statuses[individual.id] = EvaluateIndividualOutput(
 						id=individual.id,
@@ -156,10 +164,7 @@ async def handle_evaluate(
 			return EvaluateResponse(individuals=final_responses)
 
 		except Exception as e:
-			logger.error(
-				f"An unexpected error occurred during the eval process: {e}",
-				exc_info=True,
-			)
+			logger.exception("An unexpected error occurred during the eval process")
 			# Create a generic error response for all individuals
 			error_responses = [
 				EvaluateIndividualOutput(

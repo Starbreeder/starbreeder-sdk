@@ -82,8 +82,9 @@ def create_app(module: Module) -> FastAPI:
 					f"FATAL: configs directory not found at {app.state.configs_dir}"
 				)
 
-		except Exception as e:
-			raise e
+		except Exception:
+			logger.exception("Module startup failed")
+			raise
 
 		yield
 

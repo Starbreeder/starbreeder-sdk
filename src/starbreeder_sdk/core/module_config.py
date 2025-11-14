@@ -55,7 +55,7 @@ class Config(BaseModel):
 
 def load_config_from_file[T: BaseModel](config_path: str, config_class: type[T]) -> T:
 	"""Load and validate config."""
-	logger.info(f"Loading configuration from: {config_path}")
+	logger.info("Loading configuration from: %s", config_path)
 	try:
 		with open(config_path) as f:
 			config_data = yaml.safe_load(f)
@@ -64,8 +64,8 @@ def load_config_from_file[T: BaseModel](config_path: str, config_class: type[T])
 		return validated_config
 
 	except FileNotFoundError:
-		logger.error(f"Config file not found at {config_path}")
+		logger.exception("Config file not found at %s", config_path)
 		raise
-	except Exception as e:
-		logger.error(f"Failed to load or validate config {config_path}: {e}")
+	except Exception:
+		logger.exception("Failed to load or validate config %s", config_path)
 		raise

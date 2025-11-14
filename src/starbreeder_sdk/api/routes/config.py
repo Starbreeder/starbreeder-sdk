@@ -50,6 +50,6 @@ async def handle_config(request: Request, config_name: str) -> Config:
 
 	try:
 		return request.app.state.module.config(config_path)
-	except Exception as e:
-		logger.error(f"Failed to load or parse config {config_path}: {e}")
+	except Exception:
+		logger.exception("Failed to load or parse config %s", config_path)
 		raise
