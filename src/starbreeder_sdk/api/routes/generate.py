@@ -80,13 +80,13 @@ async def handle_generate(
 			parent_dirs: dict[str, str] = {}
 			async with httpx.AsyncClient(timeout=settings.HTTPX_TIMEOUT) as client:
 				source_destination_pairs = []
-				for child_individual in generate_request.parent_individuals:
+				for parent_individual in generate_request.parent_individuals:
 					individual_tmp_dir = os.path.join(
-						tmp_dir, "parents", child_individual.id
+						tmp_dir, "parents", parent_individual.id
 					)
 					await asyncio.to_thread(os.makedirs, individual_tmp_dir)
 					source_destination_pairs.append(
-						(child_individual.genotype_get_url, individual_tmp_dir)
+						(parent_individual.genotype_get_url, individual_tmp_dir)
 					)
 				download_results = await download_and_unpack_genotypes(
 					source_destination_pairs, client

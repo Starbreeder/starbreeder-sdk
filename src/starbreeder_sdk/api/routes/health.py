@@ -10,7 +10,7 @@ router = APIRouter()
 	status_code=status.HTTP_200_OK,
 	summary="Health",
 )
-def handle_health(request: Request):
+def handle_health(request: Request) -> dict[str, str | None]:
 	"""Health.
 
 	Args:
